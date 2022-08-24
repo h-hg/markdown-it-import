@@ -1,10 +1,10 @@
-const fs     = require('fs');
-const path   = require('path')
-const url    = require('url');
-const config = require('./config');
+import * as fs from 'fs';
+import * as path from 'path';
+import * as url from 'url';
+import config from './config.js';
 
-const register = (ruler) => {
-  ruler.register(config.md);
+const register = (md, ruler) => {
+  ruler.register(md);
   config.importRe[ruler.type] = RegExp(config.importReStr.replace('type', ruler.type), 'i');
 };
 
@@ -120,7 +120,7 @@ const readFile = (args) => {
   } else if(fs.existsSync(args.filePath)) {
     content = fs.readFileSync(args.filePath, 'utf8');
   } else {
-    throw new Error('Markdown-it-import: unfished');
+    throw new Error(`Markdown-it-import: Error path '${args.filePath}'`);
     return null;
   }
   return transclude(content, args);
@@ -130,16 +130,18 @@ const getCurrentFilePath = ({filePath, filePathRelative}) => {
   if(filePath && !config.rootPath) {
     // settings for vuepress
     config.rootPath = filePath.slice(0, filePath.length - filePathRelative.length);
+    console.log('log rootPath', config.rootPath);
   }
   return filePath || config.entryFile;
 }
 
+const extname = path.extname;
 
-module.exports = {
-  register            : register,
-  match               : match,
-  resolve             : resolve,
-  extname             : path.extname,
-  readFile            : readFile,
-  getCurrentFilePath  : getCurrentFilePath,
-}
+export {
+  register,
+  match,
+  resolve,
+  extname,
+  readFile,
+  getCurrentFilePath,
+};

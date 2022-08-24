@@ -1,4 +1,4 @@
-const utils = require('../utils')
+import * as utils from '../utils.js';
 
 const main = (state, startLine, endLine, slient) => {
   // if it's indented more than 3 spaces, it should be a code block
@@ -7,7 +7,7 @@ const main = (state, startLine, endLine, slient) => {
     return false;
   }
   const pos = state.bMarks[startLine] + state.tShift[startLine];
-  const max = state.eMarks[startLine];
+  const max = state.skipSpacesBack(state.eMarks[startLine], pos);
   const line = state.src.slice(pos, max);
 
   const args = utils.match('code', line, utils.getCurrentFilePath(state.env));
@@ -22,7 +22,7 @@ const main = (state, startLine, endLine, slient) => {
   token.content = utils.readFile(args);
   token.markup = '```';
   token.map = [startLine, startLine + 1];
-  // process the next
+  // process the next line
   state.line = startLine + 1;
   return true;
 };

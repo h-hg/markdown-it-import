@@ -1,11 +1,12 @@
-const config  = require('./config');
-const utils = require('./utils');
+import config from './config.js';
+import * as utils from './utils.js'
+
 const rulers = [
   require('./rulers/markdown'),
   require('./rulers/codesnippet')
 ];
 
-module.exports = (md, options) => {
+export default function (md, options) {
   // update the configuration
   Object.assign(config, {
     ...config,
@@ -14,6 +15,6 @@ module.exports = (md, options) => {
   });
   // register
   for(let ruler of rulers) {
-    utils.register(ruler);
+    utils.register(md, ruler);
   }
 };
