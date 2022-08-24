@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as url from 'url';
+import * as child_process from 'child_process';
 import config from './config.js';
 
 const register = (md, ruler) => {
@@ -41,29 +42,48 @@ const parseArgs = (strArgs) => {
 };
 
 const resolve = (currentFilePath, importPath) => {
-  // TODO
   let currentDirPath = path.dirname(currentFilePath);
   // user-defined processing
   importPath = config.handleImportPath(importPath);
-  // 其实 ./c.md https://baidu.com/a/b/ => https://baidu.com/a/c.md
   if(url.parse(importPath).protocol) {
-    // ? + https://google.com/current/a.md = https://google.com/current/a.md
+    /**
+     * importPath: https://google.com/current/a.md
+     * filePath  : https://google.com/current/a.md
+     */
     return importPath;
   } else if(url.parse(currentDirPath).protocol) {
     if(path.isAbsolute(importPath)) {
-      // https://google.com/current + /a.md = https://google.com/a.md
+      /**
+       * currentDirPath: http://example.com/path/to/dir
+       * importPath    : /file.ext
+       * filePath      : http://example.com/file.ext
+       */
       urlObj = url.parse(importPath);
       return `${urlObj.protocol}//${urlObj.auth ? urlObj.auth + '@' : ''}${urlObj.host}` + importPath
     } else {
-      // https://google.com/current + ./a.md = https://google.com/current/a.md
+      /**
+       * currentDirPath: http://example.com/path/to/dir
+       * importPath    : ./file.ext
+       * filePath      : http://example.com/path/to/dir/file.ext
+       */
       return path.resolve(currentDirPath, importPath);
     }
   } else {
     if(path.isAbsolute(importPath)) {
-      // /path/to/root + /a.md = /path/to/root/a.md
+      /**
+       * currentDirPath : /path/to/root/path/to/current
+       * rootPath:      : /path/to/root
+       * importPath     : /file.ext
+       * filePaht       : /path/to/root/file.ext
+       */
       return path.resolve(config.rootPath, importPath);
     } else {
-      // /path/to/current + ./a.md = /path/to/current/a.md
+      /**
+       * currentDirPath : /path/to/root/path/to/current
+       * rootPath:      : /path/to/root
+       * importPath     : ./file.ext
+       * filePaht       : /path/to/root/path/to/current/file.ext
+       */
       return path.resolve(currentDirPath, importPath);
     }
   }
@@ -76,11 +96,11 @@ const transclude = (content, {lines, fragment, regex}) => {
   let contentLines = content.split('\n');
   // lines
   if(lines) {
-    // lines = [1, 2]
     if(lines.length == 2 && typeof line[0] == 'number' && typeof line[1] == 'number') {
+      // example: lines = [1, 5]
       contentLines = contentLines.slice(line[0], line[1] + 1);
     } else {
-      // lines = [[1,2], 5, [8,9]]
+      // example: lines = [[1,3], 5, [8,10]]
       let tmp = [];
       for(let index of lines) {
         if(Array.isArray(index)) {
@@ -111,17 +131,19 @@ const transclude = (content, {lines, fragment, regex}) => {
   return contentLines.join('\n');
 }
 
+const downliadFileSync = (url) => {
+  // reference: https://www.npmjs.com/package/download-file-sync
+  return child_process.execFileSync('curl', ['--silent', '-L', url], {encoding: 'utf8'});
+};
+
 const readFile = (args) => {
   let content;
   if(url.parse(args.filePath).protocol) {
-    // TODO
-    throw new Error('Markdown-it-import: unfished');
-    return null;
+    content = downliadFileSync(args.filePath);
   } else if(fs.existsSync(args.filePath)) {
     content = fs.readFileSync(args.filePath, 'utf8');
   } else {
     throw new Error(`Markdown-it-import: Error path '${args.filePath}'`);
-    return null;
   }
   return transclude(content, args);
 };
@@ -130,7 +152,6 @@ const getCurrentFilePath = ({filePath, filePathRelative}) => {
   if(filePath && !config.rootPath) {
     // settings for vuepress
     config.rootPath = filePath.slice(0, filePath.length - filePathRelative.length);
-    console.log('log rootPath', config.rootPath);
   }
   return filePath || config.entryFile;
 }
