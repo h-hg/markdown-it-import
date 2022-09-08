@@ -10,8 +10,11 @@ const main = (state, startLine, endLine, slient) => {
   const max = state.skipSpacesBack(state.eMarks[startLine], pos);
   const line = state.src.slice(pos, max);
 
-  const args = utils.match('code', line, utils.getCurrentFilePath(state.env));
-  if(!args || args.index != 0 || args.content != line) {
+  const ret = utils.match('code', line, utils.getCurrentFilePath(state.env));
+  if(!ret)
+    return false;
+  const {index, content, args} = ret;
+  if(!args || index != 0 || content != line) {
     return false;
   }
   if(slient) {

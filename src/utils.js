@@ -20,7 +20,7 @@ const match = (type, content, currentFilePath) => {
   return {
     index: cap.index,
     content: cap[0],
-    ...args,
+    args: args,
   }
 };
 
@@ -29,7 +29,7 @@ const parseArgs = (strArgs) => {
     return {
       type: args[0],
       importPath: args[1],
-      ...(args[2] || {})
+      options: args[2] || {}
     };
   };
   let args = null;
@@ -147,7 +147,7 @@ const readFile = (args) => {
   } else {
     throw new Error(`Markdown-it-import: Error path '${args.filePath}'`);
   }
-  return transclude(content, args);
+  return transclude(content, args.options);
 };
 
 const getCurrentFilePath = ({filePath, filePathRelative}) => {

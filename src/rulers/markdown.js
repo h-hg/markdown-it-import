@@ -1,8 +1,8 @@
 import * as utils from '../utils.js';
 
 const helper = (src, filePaths) => {
-
-  for(let args; args = utils.match('md', src, filePaths.at(-1)), args; ) {
+  for(let ret; ret = utils.match('md', src, filePaths.at(-1)), ret; ) {
+    const {index, content, args} = ret;
     // check if there is a loop
     filePaths.push(args.filePath);
     if(filePaths.indexOf(args.filePath) != filePaths.length - 1) {
@@ -10,9 +10,11 @@ const helper = (src, filePaths) => {
     }
     // recursive import
     let replaceSrc = utils.readFile(args);
-    replaceSrc = helper(replaceSrc, filePaths);
+    if(!args.options.nest || args.options.nest != false) {
+      replaceSrc = helper(replaceSrc, filePaths);
+    }
     // combine
-    src = src.slice(0, args.index) + replaceSrc + src.slice(args.index + args.content.length, src.length);
+    src = src.slice(0, index) + replaceSrc + src.slice(index + content.length, src.length);
     filePaths.pop();
   }
   return src;
