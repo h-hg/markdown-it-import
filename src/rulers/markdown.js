@@ -22,7 +22,7 @@ const main = (state, startLine, endLine, slient) => {
   state.src = helper(state.src, [utils.getCurrentFilePath(state.env)]);
 };
 
-module.exports.type = 'md';
-module.exports.register = (md) => {
+export const type = 'md'
+export const register = (md) => {
   md.core.ruler.before('normalize', `import_md`, main);
-};
+}

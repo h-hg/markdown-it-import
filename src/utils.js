@@ -38,13 +38,13 @@ const parseArgs = (strArgs) => {
   } catch(ex) {
     throw new Error(`Markdown-it-import: Error import format '${strArgs}'`);
   }
+  args.importPath = config.handleImportPath(args.importPath);
   return args;
 };
 
 const resolve = (currentFilePath, importPath) => {
   let currentDirPath = path.dirname(currentFilePath);
   // user-defined processing
-  importPath = config.handleImportPath(importPath);
   if(url.parse(importPath).protocol) {
     /**
      * importPath: https://google.com/current/a.md
@@ -96,15 +96,16 @@ const transclude = (content, {lines, fragment, regex}) => {
   let contentLines = content.split('\n');
   // lines
   if(lines) {
-    if(lines.length == 2 && typeof line[0] == 'number' && typeof line[1] == 'number') {
+    if(lines.length == 2 && typeof lines[0] == 'number' && typeof lines[1] == 'number') {
       // example: lines = [1, 5]
-      contentLines = contentLines.slice(line[0], line[1] + 1);
+      contentLines = contentLines.slice(lines[0] - 1, lines[1]);
     } else {
       // example: lines = [[1,3], 5, [8,10]]
       let tmp = [];
-      for(let index of lines) {
+      for(let i = 0; i < lines.length; ++i) {
+        let index = lines[i];
         if(Array.isArray(index)) {
-          tmp = tmp.concat(contentLines.slice(index[0], index.at(-1) + 1));
+          tmp = tmp.concat(contentLines.slice(index[0] - 1, index.at(-1)));
         } else if(typeof index === 'number'){
           tmp.push(contentLines[index - 1]);
         }
@@ -114,19 +115,20 @@ const transclude = (content, {lines, fragment, regex}) => {
   }
   // fragment
   if(fragment) {
-    let frageLines = [], tmp = [];
-    for(let i in ret) {
+    let fragmentsLines = [], tmp = [];
+    for(let i = 0; i < contentLines.length; ++i) {
       if(contentLines[i] == fragment) {
-        frageLines.push(i);
+        fragmentsLines.push(i);
       }
     }
-    for(let i = 1; i < frageLines.length; i += 2) {
-      tmp = tmp.concat(contentLines.slice(frageLines[i - 1] + 1, frageLines[i]));
+    for(let i = 1; i < fragmentsLines.length; i += 2) {
+      tmp = tmp.concat(contentLines.slice(fragmentsLines[i - 1] + 1, fragmentsLines[i]));
     }
     contentLines = tmp;
   }
+  // regex
   if(regex) {
-    content = content.filter(line => regex.test(line));
+    contentLines = contentLines.filter(line => regex.test(line));
   }
   return contentLines.join('\n');
 }

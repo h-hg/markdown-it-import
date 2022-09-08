@@ -27,7 +27,7 @@ const main = (state, startLine, endLine, slient) => {
   return true;
 };
 
-module.exports.type = 'code';
-module.exports.register = (md) => {
+export const type = 'code'
+export const register = (md) => {
   md.block.ruler.before('fence', `import_codesnippet`, main);
 }

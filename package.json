@@ -13,6 +13,7 @@
   "repository": "https://github.com/h-hg/markdown-it-import",
   "license": "MIT",
   "main": "src/main.js",
+  "type": "module",
   "scripts": {
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs"
