@@ -16,7 +16,8 @@
   "type": "module",
   "scripts": {
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "docs:push": "npm docs:build && bash scripts/gh-pages.sh"
   },
   "files": [
     "src/"
