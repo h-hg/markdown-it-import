@@ -4,6 +4,7 @@ export default {
   lang: 'en-US',
   title: 'Markdown-It-Import',
   description: 'The document of Markdown-It-Import',
+  base: '/markdown-it-import/',
   pagePatterns: [
     '**/*.md',
     '!.vuepress',
