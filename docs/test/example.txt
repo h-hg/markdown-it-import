@@ -1,0 +1,31 @@
+# md import
+@import('md', './test/simple-md-import.md')
+# md import
+
+# md import non-recursive
+@import('md', './test/simple-md-import.md', {recursive: false})
+# md import non-recursive
+
+# simple code import
+@import('code', './test/helloworld.js', {lang: 'js'})
+# simple code import
+
+# transclusion with line 1
+@import('code', './test/lines.text', {lang: 'text', lines: [3, 8]})
+# transclusion with line 1
+
+# transclusion with line 2
+@import('code', './test/lines.text', {lang: 'text', lines: [1, [3, 5], 8]})
+# transclusion with line 2
+
+# transclusion with tag
+@import('code', './test/lines.text', {lang: 'text', fragment: '# tag1'})
+# transclusion with tag
+
+# transclusion with RE
+@import('code', './test/lines.text', {lang: 'text', regex: /line\s1[0-9]/})
+# transclusion with RE
+
+# complex transclusion
+@import('code', './test/lines.text', {lang: 'text', line: [6, 20], fragment: '# tag2', regex: /line\s[0-9]$/})
+# complex transclusion

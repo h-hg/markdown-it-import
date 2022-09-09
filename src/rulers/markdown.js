@@ -10,7 +10,7 @@ const helper = (src, filePaths) => {
     }
     // recursive import
     let replaceSrc = utils.readFile(args);
-    if(!args.options.nest || args.options.nest != false) {
+    if(!args.options.recursive || args.options.recursive != false) {
       replaceSrc = helper(replaceSrc, filePaths);
     }
     // combine
